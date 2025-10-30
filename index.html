@@ -1,435 +1,499 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Report Dashboard</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>QR Bincard Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #3498db;
-            --light-color: #ecf0f1;
-            --dark-color: #34495e;
-        }
-        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
+
         body {
-            background-color: #f5f7fa;
-            color: var(--dark-color);
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+            min-height: 100vh;
+            padding: 20px;
         }
-        
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
         }
-        
+
         header {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 20px 0;
             text-align: center;
-            margin-bottom: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
         }
-        
+
         h1 {
-            font-size: 2.2rem;
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 5px;
         }
-        
-        .tabs {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        
-        .tab-btn {
-            padding: 12px 24px;
-            background-color: var(--light-color);
-            border: none;
-            border-radius: 30px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            margin: 0 5px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        
-        .tab-btn:hover {
-            background-color: var(--secondary-color);
-            color: white;
-            transform: translateY(-2px);
-        }
-        
-        .tab-btn.active {
-            background-color: var(--secondary-color);
-            color: white;
-        }
-        
-        .tab-content {
-            display: none;
-            animation: fadeIn 0.5s ease;
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        .dashboard-grid {
+
+        .main-content {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            grid-template-columns: 350px 1fr;
             gap: 20px;
         }
-        
-        .report-card {
-            background-color: white;
-            border-radius: 10px;
-            padding: 25px 20px;
-            text-align: center;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            cursor: pointer;
-            text-decoration: none;
-            color: var(--dark-color);
+
+        @media (max-width: 968px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
         }
-        
-        .report-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+
+        .form-section {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
         }
-        
-        .report-icon {
-            font-size: 2.5rem;
+
+        .preview-section {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+        }
+
+        .form-group {
             margin-bottom: 15px;
         }
-        
-        .report-title {
-            font-weight: 600;
-            font-size: 1rem;
-        }
-        
-      
-        /* Daily Report Colors */
-        .daily-1 { color: #d64045; }
-        .daily-2 { color: #007b6; }
-        .daily-3 { color: #ffd166; }
-        .daily-4 { color: #5f4b8b; }
-        .daily-5 { color: #ad5d4e; }
-        .daily-6 { color: #e6af2e; }
-        .daily-7 { color: #2a9d8f; }
-        .daily-8 { color: #e76f51; }
-        .daily-9 { color: #f4a261; }
-        .daily-10 { color: #264653;}
-        .daily-11 { color: #ffca3a;}
-        
-        /* Weekly Report Colors */
-        .weekly-1 { color: #e67e22; }
-        .weekly-2 { color: #16a085; }
-        .weekly-3 { color: #c0392b; }
-        .weekly-4 { color: #8e44ad; }
-        .weekly-5 { color: #ffd166; }
-        .weekly-6 { color: #ad5d4e; }
-        .weekly-7 { color: #e6af2e; }
-        .weekly-8 { color: #2a9d8f; }
-        .weekly-9 { color: #e76f51; }
-        
-        /* Monthly Report Colors */
-        .monthly-1 { color: #3498db; }
-        .monthly-2 { color: #2ecc71; }
-        .monthly-3 { color: #f1c40f; }
-        .monthly-4 { color: #e74c3c; }
-        .monthly-5 { color: #9b59b6; }
-        .monthly-6 { color: #f39c12; }
-        .monthly-7 { color: #d64045; }
-        .monthly-8 { color: #007b6; }
-        .monthly-9 { color: #ffd166; }
-        .monthly-10 { color: #5f4b8b; }
-        
-        /* Project Report Colors */
-        .project-1 { color: #9b59b6; }
-        .project-2 { color: #1abc9c; }
-        .project-3 { color: #d35400; }
-        .project-4 { color: #2a9d8f; }
-        .project-5 { color: #e76f51; }
-        .project-6 { color: #f4a261; }
-        .project-7 { color: #264653;}
-        .project-8 { color: #ffca3a;}
-        
-        /* App Report Colors */
-        .app-1 { color: #3498db; }
-        .app-2 { color: #2ecc71; }
-        .app-3 { color: #e74c3c; }
-        .app-4 { color: #f39c12; }
-        .app-5 { color: #9b59b6; }
-        .app-6 { color: #1abc9c; }
-        .app-7 { color: #d35400; }
-        .app-8 { color: #c0392b; }
-        .app-9 { color: #e67e22; }
 
-        /* store Report Colors */
-        .store-1 { color: #d64045; }
-        .store-2 { color: #3498db; }
-        .store-3 { color: #2ecc71; }
-        .store-4 { color: #f39c12; }
-        .store-5 { color: #9b59b6; }
-        .store-6 { color: #1abc9c; }
-        .store-7 { color: #d35400; }
-        .store-8 { color: #27ae60; }
-        .store-9 { color: #2980b9; }
-        .store-10 { color: #3498db; }
-        
-      /* StakeHolder Report Colors */
-        .stk-1 { color: #3498db; }
-        .stk-2 { color: #2ecc71; }
-        .stk-3 { color: #e74c3c; }
-        .stk-4 { color: #f39c12; }
-        .stk-5 { color: #9b59b6; }
-        .stk-6 { color: #1abc9c; }
-        .stk-7 { color: #d35400; }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+            font-size: 14px;
         }
-        
-        @media (max-width: 768px) {
-            .dashboard-grid {
-                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+
+        input[type="url"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-size: 14px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 3px;
+            font-size: 14px;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .btn-generate {
+            background: #2c5aa0;
+            color: white;
+        }
+
+        .btn-pdf {
+            background: #d32f2f;
+            color: white;
+        }
+
+        /* A4 Page Layout */
+        .a4-page {
+            width: 210mm;
+            height: 297mm;
+            background: white;
+            margin: 0 auto;
+            padding: 15mm;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 12mm;
+            page-break-after: always;
+        }
+
+        /* Template Design - Horizontal Layout */
+        .bincard-template {
+            width: 85mm;
+            height: 45mm;
+            border: 2px solid #000;
+            background: white;
+            display: flex;
+        }
+
+        /* QR Code di sebelah kiri */
+        .qr-section {
+            width: 45mm;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2mm;
+            border-right: 2px solid #000;
+        }
+
+        .qr-container {
+            padding: 1mm;
+            border: 1px solid #ddd;
+            background: white;
+        }
+
+        .qrcode {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .qrcode canvas {
+            width: 100px !important;
+            height: 100px !important;
+        }
+
+        /* Content di sebelah kanan */
+        .content-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header kuning di sebelah kanan atas */
+        .yellow-header {
+            background: #ffeb3b;
+            padding: 3mm 2mm;
+            font-weight: bold;
+            font-size: 12px;
+            border-bottom: 2px solid #000;
+            text-transform: uppercase;
+            text-align: center;
+            height: 12mm;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Area untuk tulisan kategori */
+        .category-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2mm;
+            text-align: center;
+        }
+
+        .category-name {
+            font-weight: bold;
+            font-size: 14px;
+            color: #000;
+            text-transform: uppercase;
+            line-height: 1.3;
+            margin-bottom: 2mm;
+        }
+
+        .category-number {
+            font-weight: bold;
+            font-size: 12px;
+            color: #000;
+        }
+
+        .empty-state {
+            color: #999;
+            font-style: italic;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .controls {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .btn-print {
+            background: #388e3c;
+            color: white;
+            padding: 10px 20px;
+        }
+
+        @media print {
+            body {
+                background: white !important;
+                padding: 0 !important;
             }
-            
-            .tab-btn {
-                padding: 10px 15px;
-                font-size: 0.9rem;
+            .form-section, .controls, header {
+                display: none !important;
             }
+            .preview-section {
+                padding: 0 !important;
+                background: white !important;
+            }
+            .a4-page {
+                padding: 15mm !important;
+                margin: 0 !important;
+            }
+        }
+
+        .url-input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .url-input-item {
+            border: 1px solid #e0e0e0;
+            padding: 10px;
+            border-radius: 3px;
+            margin-bottom: 10px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Report Dashboard HB Green Pramuka Square</h1>
+            <h1>QR Bincard Generator</h1>
+            <p>Layout Horizontal - QR Kiri, Kategori Kanan</p>
         </header>
-        
-        <div class="tabs">
-            <button class="tab-btn active" data-tab="daily">Daily Report</button>
-            <button class="tab-btn" data-tab="weekly">Weekly Report</button>
-            <button class="tab-btn" data-tab="monthly">Monthly Report</button>
-            <button class="tab-btn" data-tab="project">Project Report</button>
-            <button class="tab-btn" data-tab="store">Store Report</button>
-            <button class="tab-btn" data-tab="stk">Stake Holder Report</button>
-        </div>
-        
-        <!-- Daily Report -->
-        <div id="daily" class="tab-content active">
-            <div class="dashboard-grid">
-                <a href="https://docs.google.com/spreadsheets/d/1zdvfsJNTUDD350LC5M8Kosqzb8u09iVLWkCjwwyCEGc/edit?usp=sharing" class="report-card" target="_blank" rel="nofollow">
-                    <div class="report-icon daily-1"><i class="fas fa-clone"></i></div>
-                    <div class="report-title">Form Log Book</div>
-                </a>
-                <a href="" class="report-card" target="_blank" rel="nofollow">
-                    <div class="report-icon daily-2"><i class="fas fa-id-card"></i></div>
-                    <div class="report-title">Report Shift Management</div>
-                </a>
-                <a href="https://docs.google.com/spreadsheets/d/1i1uxr46UzZPbGepcekroIiZ9d5--TJckT5W6lht-uMs/edit?usp=drive_link" class="report-card" target="_blank" rel="nofollow">
-                    <div class="report-icon daily-3"><i class="fas fa-tablet"></i></div>
-                    <div class="report-title">TCMH</div>
-                </a>
-                <a href="" class="report-card" target="_blank" rel="nofollow">
-                    <div class="report-icon daily-4"><i class="fas fa-bar-chart"></i></div>
-                    <div class="report-title">Buku Kinerja Karyawan TMBS -CL</div>
-                </a>
-                <a href="" class="report-card" target="_blank" rel="nofollow">
-                    <div class="report-icon daily-6"><i class="fas fa-hourglass"></i></div>
-                    <div class="report-title">LPB-Batch-Expired</div>
-                </a>
-                <a href="" class="report-card" target="_blank" rel="nofollow">
-                    <div class="report-icon daily-7"><i class="fas fa-paperclip"></i></div>
-                    <div class="report-title">Compliment store</div>
-                </a>
-                <a href="" class="report-card" target="_blank" rel="nofollow">
-                    <div class="report-icon daily-5"><i class="fas fa-cube"></i></div>
-                    <div class="report-title">Inventory</div>
-                </a>
-            </div>
-        </div>
-        
-        <!-- Weekly Report -->
-        <div id="weekly" class="tab-content">
-            <div class="dashboard-grid">
-                <a href="" class="report-card" target="_blank" rel="nofollow">
-                    <div class="report-icon weekly-1"><i class="fas fa-calendar"></i></div>
-                    <div class="report-title">Line Bar</div>
-                </a>
-                <a href="" class="report-card" target="_blank" rel="nofollow">
-                    <div class="report-icon weekly-2"><i class="fas fa-newspaper"></i></div>
-                    <div class="report-title">Report Shift Management</div>
-                </a>
-                <a href="" class="report-card" target="_blank" rel="nofollow">
-                    <div class="report-icon weekly-3"><i class="fas fa-magnet"></i></div>
-                    <div class="report-title">Keterisian Kursi</div>
-                </a>
-                <a href="" class="report-card" target="_blank" rel="nofollow">
-                    <div class="report-icon weekly-4"><i class="fas fa-road"></i></div>
-                    <div class="report-title">Traffic Count</div>
-                </a>
-                <a href="" class="report-card" target="_blank" rel="nofollow">
-                    <div class="report-icon weekly-5"><i class="fas fa-newspaper"></i></div>
-                    <div class="report-title">Report Shift Management</div>
-                </a>
-            </div>
-        </div>
-        
-        <!-- Monthly Report -->
-        <div id="monthly" class="tab-content">
-            <div class="dashboard-grid">
-                <a href="" class="report-card" target="_blank" rel="nofollow">
-                    <div class="report-icon monthly-1"><i class="fas fa-bookmark"></i></div>
-                    <div class="report-title">I-Quest</div>
-                </a>
-                <a href="" class="report-card" target="_blank" rel="nofollow">
-                    <div class="report-icon monthly-2"><i class="fas fa-archive"></i></div>
-                    <div class="report-title">SS Report</div>
-                </a>
-                <a href="" class="report-card" target="_blank" rel="nofollow">
-                    <div class="report-icon monthly-3"><i class="fas fa-microchip"></i></div>
-                    <div class="report-title">QCC Report</div>
-                </a>
-                <a href="" class="report-card" target="_blank" rel="nofollow">
-                    <div class="report-icon monthly-4"><i class="fas fa-columns"></i></div>
-                    <div class="report-title">Dept Task Training</div>
-                </a>
-                <a href="" class="report-card" target="_blank" rel="nofollow">
-                    <div class="report-icon monthly-5"><i class="fas fa-clipboard"></i></div>
-                    <div class="report-title">PDLC & RMLC</div>
-                </a>
-                <a href="" class="report-card" target="_blank" rel="nofollow">
-                    <div class="report-icon monthly-6"><i class="fas fa-list-alt"></i></div>
-                    <div class="report-title">Prep Chart</div>
-                </a>
-                <a href="" class="report-card" target="_blank" rel="nofollow">
-                    <div class="report-icon monthly-7"><i class="fas fa-database"></i></div>
-                    <div class="report-title">PNL</div>
-                </a>
-                <a href="" class="report-card" target="_blank" rel="nofollow">
-                    <div class="report-icon monthly-8"><i class="fas fa-bullseye"></i></div>
-                    <div class="report-title">Restaurant Monthly Objektif</div>
-                </a>
-                 <a href="" class="report-card" target="_blank" rel="nofollow">
-                    <div class="report-icon monthly-9"><i class="fas fa-inbox"></i></div>
-                    <div class="report-title">Bisnis Plan</div>
-                </a>
-            </div>
-        </div>
-        <!-- Store Report -->
-        <div id="store" class="tab-content">
-            <div class="dashboard-grid">
-                <a href="" class="report-card" target="_blank" rel="nofollow">
-                    <div class="report-icon store-1"><i class="fas fa-credit-card"></i></div>
-                    <div class="report-title">STORE BRIEF</div>
-                </a>
-                <a href="" class="report-card" target="_blank" rel="nofollow">
-                    <div class="report-icon store-2"><i class="fas fa-file-text"></i></div>
-                    <div class="report-title">NPL</div>
-                </a>
-                <a href="" class="report-card" target="_blank" rel="nofollow">
-                    <div class="report-icon store-3"><i class="fas fa-window-restore"></i></div>
-                    <div class="report-title">TRAINING</div>
-                </a>
-                <a href="" class="report-card" target="_blank" rel="nofollow">
-                    <div class="report-icon store-4"><i class="fas fa-eyedropper"></i></div>
-                    <div class="report-title">PREVENTIF</div>
-                </a>
-                <a href="" class="report-card" target="_blank" rel="nofollow">
-                    <div class="report-icon weekly-5"><i class="fas fa-recycle"></i></div>
-                    <div class="report-title">Monthly Equipment StokList</div>
-                </a>
-                <a href="" class="report-card" target="_blank" rel="nofollow">
-                    <div class="report-icon weekly-6"><i class="fas fa-sign-out"></i></div>
-                    <div class="report-title">Monthly Perfomance Report</div>
-                </a>
-            </div>
-        </div>
-        <!-- Project Report -->
-        <div id="project" class="tab-content">
-            <div class="dashboard-grid">
-                <a href="" class="report-card" target="_blank" rel="nofollow">
-                    <div class="report-icon store-1"><i class="fas fa-shield"></i></div>
-                    <div class="report-title">AUDIT 5R</div>
-                </a>
-                <a href="" class="report-card" target="_blank" rel="nofollow">
-                    <div class="report-icon store-2"><i class="fas fa-podcast"></i></div>
-                    <div class="report-title">FSQ</div>
-                </a>
-                <a href="" class="report-card" target="_blank" rel="nofollow">
-                    <div class="report-icon store-3"><i class="fas fa-plug"></i></div>
-                    <div class="report-title">PHYSICAL INSPECTION</div>
-                </a>
-                <a href="" class="report-card" target="_blank" rel="nofollow">
-                    <div class="report-icon store-4"><i class="fas fa-desktop"></i></div>
-                    <div class="report-title">IMPLEMENTASI FORM STORE</div>
-                </a>
-                <a href="" class="report-card" target="_blank" rel="nofollow">
-                    <div class="report-icon store-5"><i class="fas fa-desktop"></i></div>
-                    <div class="report-title">Activity Sales</div>
-                </a>
-                <a href="" class="report-card" target="_blank" rel="nofollow">
-                    <div class="report-icon store-6"><i class="fas fa-bug"></i></div>
-                    <div class="report-title">Pest Control Management</div>
-                </a>
-            </div>
-        </div>
-       <!-- StakeHolder Report -->
-        <div id="stk" class="tab-content">
-            <div class="dashboard-grid">
-                <a href="https://docs.google.com/spreadsheets/d/1EuTHztICd-Sxqf0Ks-T5Qv4z1HrQ4LwBJE37nyZU2x0/edit?usp=drive_link" class="report-card" target="_blank" rel="nofollow">
-                    <div class="report-icon stk-1"><i class="fas fa-snowflake"></i></div>
-                    <div class="report-title">Bincard Frozen</div>
-                </a>
-                <a href="" class="report-card" target="_blank" rel="nofollow">
-                    <div class="report-icon stk-2"><i class="fas fa-wheat-awn"></i></div>
-                    <div class="report-title">Bincard Dry</div>
-                </a>
-                <a href="" class="report-card" target="_blank" rel="nofollow">
-                    <div class="report-icon stk-3"><i class="fas fa-heartbeat"></i></div>
-                    <div class="report-title">Bincard Dessert</div>
-                </a>
-                <a href="https://hsa.hokben.net/login" class="report-card" target="_blank" rel="nofollow">
-                    <div class="report-icon stk-4"><i class="fas fa-clipboard-list"></i></div>
-                    <div class="report-title">Stok On Hand</div>
-                </a>
+
+        <div class="main-content">
+            <!-- Form Input Section -->
+            <div class="form-section">
+                <h3>URL Spreadsheet</h3>
                 
+                <div class="url-input-group">
+                    <div class="url-input-item">
+                        <label>Bincard Frozen:</label>
+                        <input type="url" id="url-frozen" placeholder="https://docs.google.com/spreadsheets/d/...">
+                    </div>
+
+                    <div class="url-input-item">
+                        <label>Bincard Fast Moving:</label>
+                        <input type="url" id="url-fast-moving" placeholder="https://docs.google.com/spreadsheets/d/...">
+                    </div>
+
+                    <div class="url-input-item">
+                        <label>Bincard Merchandise:</label>
+                        <input type="url" id="url-merchandise" placeholder="https://docs.google.com/spreadsheets/d/...">
+                    </div>
+
+                    <div class="url-input-item">
+                        <label>Bincard Dessert Buah Sayur:</label>
+                        <input type="url" id="url-dessert" placeholder="https://docs.google.com/spreadsheets/d/...">
+                    </div>
+
+                    <div class="url-input-item">
+                        <label>Bincard Slow Moving:</label>
+                        <input type="url" id="url-slow-moving" placeholder="https://docs.google.com/spreadsheets/d/...">
+                    </div>
+
+                    <div class="url-input-item">
+                        <label>Perhitungan Minyak:</label>
+                        <input type="url" id="url-minyak" placeholder="https://docs.google.com/spreadsheets/d/...">
+                    </div>
+
+                    <div class="url-input-item">
+                        <label>Uji Organoleptik:</label>
+                        <input type="url" id="url-organoleptik" placeholder="https://docs.google.com/spreadsheets/d/...">
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-generate" onclick="generateAllQR()">Generate QR Codes</button>
+                    <button class="btn-pdf" onclick="saveAsPDF()">Download PDF</button>
+                </div>
+            </div>
+
+            <!-- Preview Section -->
+            <div class="preview-section">
+                <div class="a4-page" id="a4Page">
+                    <div class="empty-state">
+                        QR Codes akan muncul di sini setelah di-generate
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button class="btn-print" onclick="printPage()">Print Halaman</button>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const tabBtns = document.querySelectorAll('.tab-btn');
+        const categories = [
+            {
+                id: 'frozen',
+                name: 'QR BINCARD',
+                categoryText: 'BINCARD FROZEN',
+                categoryNumber: '(01)',
+                inputId: 'url-frozen'
+            },
+            {
+                id: 'fast-moving',
+                name: 'QR BINCARD',
+                categoryText: 'BINCARD FAST MOVING',
+                categoryNumber: '(02)',
+                inputId: 'url-fast-moving'
+            },
+            {
+                id: 'merchandise',
+                name: 'QR BINCARD',
+                categoryText: 'BINCARD MERCHANDISE',
+                categoryNumber: '(03)',
+                inputId: 'url-merchandise'
+            },
+            {
+                id: 'dessert',
+                name: 'QR BINCARD',
+                categoryText: 'BINCARD DESSERT BUAH SAYUR',
+                categoryNumber: '(04)',
+                inputId: 'url-dessert'
+            },
+            {
+                id: 'slow-moving',
+                name: 'QR BINCARD',
+                categoryText: 'BINCARD SLOW MOVING',
+                categoryNumber: '(05)',
+                inputId: 'url-slow-moving'
+            },
+            {
+                id: 'minyak',
+                name: 'QR BINCARD',
+                categoryText: 'PERHITUNGAN MINYAK',
+                categoryNumber: '(06)',
+                inputId: 'url-minyak'
+            },
+            {
+                id: 'organoleptik',
+                name: 'QR BINCARD',
+                categoryText: 'UJI ORGANOLEPTIK',
+                categoryNumber: '(07)',
+                inputId: 'url-organoleptik'
+            }
+        ];
+
+        let qrInstances = {};
+
+        function generateAllQR() {
+            // Clear previous content
+            document.getElementById('a4Page').innerHTML = '';
             
-            tabBtns.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    // Remove active class from all buttons and content
-                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                    
-                    // Add active class to clicked buutton
-                    this.classList.add('active');
-                    
-                    // Show corresponding content
-                    const tabId = this.getAttribute('data-tab');
-                    document.getElementById(tabId).classList.add('active');
-                });
+            let hasValidUrl = false;
+
+            // Generate QR untuk setiap kategori
+            categories.forEach((category) => {
+                const url = document.getElementById(category.inputId).value;
+                
+                if (url && url.includes('docs.google.com/spreadsheets')) {
+                    hasValidUrl = true;
+                    generateQRCodeForCategory(category, url);
+                }
             });
+
+            if (!hasValidUrl) {
+                alert('Masukkan URL Google Spreadsheet yang valid');
+                return;
+            }
+        }
+
+        function generateQRCodeForCategory(category, url) {
+            const template = document.createElement('div');
+            template.className = 'bincard-template';
+
+            template.innerHTML = `
+                <!-- QR Code di Sebelah Kiri -->
+                <div class="qr-section">
+                    <div class="qr-container">
+                        <div class="qrcode" id="qrcode-${category.id}"></div>
+                    </div>
+                </div>
+                
+                <!-- Konten di Sebelah Kanan -->
+                <div class="content-section">
+                    <!-- Header Kuning dengan tulisan QR BINCARD -->
+                    <div class="yellow-header">
+                        ${category.name}
+                    </div>
+                    
+                    <!-- Area untuk tulisan kategori -->
+                    <div class="category-area">
+                        <div class="category-name">${category.categoryText}</div>
+                        <div class="category-number">${category.categoryNumber}</div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('a4Page').appendChild(template);
+
+            // Generate QR Code
+            const qrContainer = document.getElementById(`qrcode-${category.id}`);
+            qrContainer.innerHTML = '';
+
+            // Clear previous QR instance
+            if (qrInstances[category.id]) {
+                qrInstances[category.id].clear();
+            }
+
+            qrInstances[category.id] = new QRCode(qrContainer, {
+                text: url,
+                width: 100,
+                height: 100,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        }
+
+        function saveAsPDF() {
+            const a4Page = document.getElementById('a4Page');
+            
+            if (a4Page.children.length === 0) {
+                alert('Generate QR Codes terlebih dahulu!');
+                return;
+            }
+
+            html2canvas(a4Page, {
+                scale: 3,
+                useCORS: true,
+                logging: false,
+                backgroundColor: '#ffffff'
+            }).then(canvas => {
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                
+                const imgWidth = 210;
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                
+                const imgData = canvas.toDataURL('image/png');
+                
+                pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+                pdf.save(`QR-Bincards-${new Date().toISOString().split('T')[0]}.pdf`);
+            });
+        }
+
+        function printPage() {
+            window.print();
+        }
+
+        // Auto-fill example URLs on load
+        window.addEventListener('load', function() {
+            categories.forEach(category => {
+                const input = document.getElementById(category.inputId);
+                input.value = `https://docs.google.com/spreadsheets/d/1EXAMPLE_${category.id.toUpperCase()}`;
+            });
+            
+            // Auto-generate QR codes on load
+            setTimeout(() => {
+                generateAllQR();
+            }, 1000);
         });
     </script>
 </body>
